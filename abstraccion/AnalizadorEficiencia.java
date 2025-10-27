@@ -4,8 +4,19 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Analizador de eficiencia con medición en nanosegundos,
- * warming-up y presentación dinámica en µs/ms.
+ * Orquesta la ejecución de las pruebas de rendimiento para un conjunto de algoritmos de ordenamiento.
+ * <p>Esta clase es el motor principal del análisis. Es responsable de:
+ * <ul>
+ * <li>Preparar los "escalones" de tamaños de arreglos (basado en 'n').</li>
+ * <li>Realizar un "calentamiento" (warm-up) de la JVM para activar el JIT.</li>
+ * <li>Ejecutar cada {@link EstrategiaOrdenamiento} múltiples veces por cada tamaño.</li>
+ * <li>Calcular el tiempo promedio de ejecución y mostrarlo en consola.</li>
+ * <li>Delegar el almacenamiento de cada {@link Resultado} al {@link GestorResultados}.</li>
+ * </ul>
+ *
+ * @see EstrategiaOrdenamiento
+ * @see GestorResultados
+ * @see Resultado
  */
 public class AnalizadorEficiencia 
     {
@@ -13,7 +24,7 @@ public class AnalizadorEficiencia
         private final List<EstrategiaOrdenamiento> algoritmos = Arrays.asList
             (
                 new BubbleSort(),
-                new InsertionSort(),
+                new InsertionSort(), 
                 new SelectionSort(),
                 new MergeSort(),
                 new QuickSort()
@@ -31,38 +42,31 @@ public class AnalizadorEficiencia
          */
         public AnalizadorEficiencia(int n) 
             {
-                int segmentos = 10;
-                
-                // Ajustar segmentos si n es pequeño
-                if (n < 1000 && n > 0) 
-                    {
-                        segmentos = Math.max(1, n / 100);
-                    } 
-                else if (n <= 0) 
-                    {
-                        segmentos = 1; // Evitar división por cero
-                        n = 1; // Asegurar un tamaño válido
-                    }
-                
-                int incremento = n / segmentos;
+                int segmentos;
 
-                if (incremento == 0) 
+                if (n <= 0) 
                     {
-                        // Caso donde n es muy pequeño (e.g., n=50)
-                        // Asignación ÚNICA en esta rama
-                        this.tamanios = new int[] {n};
+                        // 1. Red de seguridad
+                        n = 1;
+                        segmentos = 1;
+                    } 
+                else if (n < 1000) 
+                    {
+                        // 2. Ajuste para n pequeño
+                        segmentos = Math.max(1, n / 100);
                     } 
                 else 
                     {
-                        // Asignación ÚNICA en esta rama
-                        this.tamanios = new int[segmentos];
-                        
-                        // Llenamos el arreglo ya creado
-                        for (int i = 0; i < segmentos; i++) 
-                            {
-                                // Genera [n/10, 2n/10, 3n/10, ..., n]
-                                this.tamanios[i] = (i + 1) * incremento;
-                            }
+                        // 3. Caso estándar
+                        segmentos = 10;
+                    }
+
+                int incremento = n / segmentos;
+
+                this.tamanios = new int[segmentos];
+                for (int i = 0; i < segmentos; i++) 
+                    {
+                        this.tamanios[i] = (i + 1) * incremento;
                     }
             }
 
@@ -75,7 +79,6 @@ public class AnalizadorEficiencia
                 GestorResultados gestor = GestorResultados.getInstancia();
 
                 // Warm-up
-                System.out.println("Realizando warm-up (JVM/JIT)...");
                 int warmUpSize = Math.max(1000, (tamanios.length > 0 ? tamanios[0] : 1000));
                 Arreglo warm = new Arreglo(warmUpSize);
 
@@ -91,7 +94,7 @@ public class AnalizadorEficiencia
                         // Evitar tamaños 0 si 'n' era muy pequeño
                         if (n == 0) continue; 
                         
-                        System.out.println("\n🔹 Tamaño del arreglo: " + n);
+                        System.out.println("\nTamaño del arreglo: " + n);
 
                         // Generar un arreglo base (se reutiliza la misma muestra para todas las repeticiones)
                         Arreglo base = new Arreglo(n);
@@ -103,7 +106,6 @@ public class AnalizadorEficiencia
 
                                 long totalNs = 0L;
 
-                                // Repeticiones medida
                                 for (int r = 0; r < REPETICIONES; r++) 
                                     {
                                         int[] copia = Arrays.copyOf(datosBase, datosBase.length);
@@ -120,7 +122,6 @@ public class AnalizadorEficiencia
                                 double promedioNs = totalNs / (double) REPETICIONES;
                                 double promedioMs = promedioNs / 1_000_000.0; // para almacenar/CSV
 
-                                // Impresión amigable (se mantiene)
                                 if (promedioNs < 1_000_000.0) 
                                     {
                                         double promedioUs = promedioNs / 1000.0;

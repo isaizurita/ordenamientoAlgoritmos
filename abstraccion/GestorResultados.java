@@ -11,12 +11,12 @@ import java.io.IOException;
  */
 public class GestorResultados 
     {
-        private static GestorResultados instancia;
+        private static GestorResultados instancia; // Singleton
         private List<Resultado> resultados;
 
         private GestorResultados() 
             {
-                resultados = new ArrayList<>();
+                resultados = new ArrayList<>(); // Aquí "prohibimos" que cualquier otra clase cree una nueva instancia de GestorResulrados
             }
 
         public static GestorResultados getInstancia() 
@@ -37,10 +37,8 @@ public class GestorResultados
             }
 
         /**
-         * --- NUEVO MÉTODO ---
          * Escribe la lista completa de resultados a un archivo CSV.
-         * Esta es la responsabilidad que movimos desde AnalizadorEficiencia.
-         * @param nombreArchivo El nombre del archivo a crear (ej. "resultados.csv")
+         * @param nombreArchivo El nombre del archivo a crear
          */
         public void exportarResultadosCSV(String nombreArchivo)
             {

@@ -384,3 +384,15 @@ public class MainApp extends Application
                 launch(args);
             }
     }
+
+
+/*
+ * Para ejecutar desde carpeta raíz
+ * $ --module-path $PATH_TO_FX --add-modules javafx.controls \
+   $ -d out \
+ * $ abstraccion/*.java control/*.java presentacion/*.java
+ * 
+ * $java --module-path $PATH_TO_FX --add-modules javafx.controls \
+ * $ -cp out \
+ * $ presentacion.MainApp
+ */

@@ -31,7 +31,7 @@ public class Principal
                 String resp = sc.nextLine().trim().toLowerCase();
                 if (resp.equals("s") || resp.equals("si")) 
                     {
-                        controlador.mostrarGrafica();
+                       //controlador.mostrarGrafica();
                         System.out.println("Resumen y CSV de gráfica generados.");
                     } 
                 else 

@@ -69,4 +69,10 @@ public class GestorResultados
                         e.printStackTrace();
                     }
             }
+
+            public void limpiar()
+                {
+                    resultados.clear();
+                    System.out.println("El gestor de resultados fue depurado");
+                }
     }

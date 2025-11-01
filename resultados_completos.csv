@@ -1,4 +1,4 @@
-tamano,algoritmo,tiempo_ms
+Tamaño,Algoritmo,PromedioMs
 2500,BubbleSort,3.668817
 2500,InsertionSort,0.320497
 2500,SelectionSort,1.260866

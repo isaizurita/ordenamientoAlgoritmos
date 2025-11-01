@@ -9,13 +9,15 @@ public class Resultado
         private final String algoritmo;
         private final int tamano;
         private final double tiempoMs;
+        private final String caso;
 
         // Constructor completo
-        public Resultado(String algoritmo, int tamano, double tiempoMs) 
+        public Resultado(String algoritmo, int tamano, double tiempoMs, String caso) 
             {
                 this.algoritmo = algoritmo;
                 this.tamano = tamano;
                 this.tiempoMs = tiempoMs;
+                this.caso = caso;
             }
 
         public String getAlgoritmo() {
@@ -28,6 +30,10 @@ public class Resultado
 
         public double getTiempoMs() {
             return tiempoMs;
+        }
+
+        public String getCaso(){
+            return caso;
         }
 
         @Override

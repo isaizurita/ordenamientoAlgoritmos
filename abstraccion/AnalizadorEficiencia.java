@@ -20,6 +20,8 @@ import java.util.List;
  */
 public class AnalizadorEficiencia 
     {
+        // Definimos los tres casos que vamos a probar
+        private enum TipoCaso { Promedio, Mejor, Peor }
 
         private final List<EstrategiaOrdenamiento> algoritmos = Arrays.asList
             (
@@ -73,12 +75,13 @@ public class AnalizadorEficiencia
 
         /**
          * Ejecuta el análisis para los tamaños definidos.
+         * AHORA EJECUTA LOS 3 CASOS (PROMEDIO, MEJOR, PEOR).
          */
         public void ejecutarAnalisis() 
             {
                 GestorResultados gestor = GestorResultados.getInstancia();
 
-                // Warm-up
+                // Warm-up (Se mantiene igual, usa el caso promedio)
                 int warmUpSize = Math.max(1000, (tamanios.length > 0 ? tamanios[0] : 1000));
                 Arreglo warm = new Arreglo(warmUpSize);
 
@@ -91,55 +94,77 @@ public class AnalizadorEficiencia
                 // Itera sobre los tamaños generados
                 for (int n : tamanios) 
                     {
-                        // Evitar tamaños 0 si 'n' era muy pequeño
                         if (n == 0) continue; 
                         
                         System.out.println("\nTamaño del arreglo: " + n);
 
-                        // Generar un arreglo base (se reutiliza la misma muestra para todas las repeticiones)
+                        // Generar un arreglo base (lo creamos una vez por tamaño)
                         Arreglo base = new Arreglo(n);
-                        int[] datosBase = base.getDatos();
 
                         for (EstrategiaOrdenamiento algoritmo : algoritmos) 
                             {
                                 String nombre = algoritmo.getNombre();
 
-                                long totalNs = 0L;
-
-                                for (int r = 0; r < REPETICIONES; r++) 
+                                for (TipoCaso caso : TipoCaso.values())
                                     {
-                                        int[] copia = Arrays.copyOf(datosBase, datosBase.length);
+                                        // 1. Obtenemos el arreglo correcto para este caso
+                                        int[] datosBaseCaso;
+                                        String nombreCaso = caso.toString(); // "PROMEDIO", "MEJOR", "PEOR"
 
-                                        long inicio = System.nanoTime();
-                                        algoritmo.ordenar(copia);
-                                        long fin = System.nanoTime();
+                                        switch (caso)
+                                            {
+                                                case Mejor:
+                                                    datosBaseCaso = base.getDatosOrdenados();
+                                                    break;
+                                                case Peor:
+                                                    datosBaseCaso = base.getDatosOrdenadosInversos();
+                                                    break;
+                                                case Promedio:
+                                                default:
+                                                    datosBaseCaso = base.getDatos();
+                                                    break;
+                                            }
 
-                                        long deltaNs = fin - inicio;
-                                        totalNs += deltaNs;
-                                    }
+                                        // 2. Ejecutamos las repeticiones (lógica existente)
+                                        long totalNs = 0L;
+                                        for (int r = 0; r < REPETICIONES; r++) 
+                                            {
+                                                // Usamos la copia del caso correspondiente
+                                                int[] copia = Arrays.copyOf(datosBaseCaso, datosBaseCaso.length);
 
-                                // Promedio en nanosegundos (double para evitar truncamiento)
-                                double promedioNs = totalNs / (double) REPETICIONES;
-                                double promedioMs = promedioNs / 1_000_000.0; // para almacenar/CSV
+                                                long inicio = System.nanoTime();
+                                                algoritmo.ordenar(copia);
+                                                long fin = System.nanoTime();
 
-                                if (promedioNs < 1_000_000.0) 
-                                    {
-                                        double promedioUs = promedioNs / 1000.0;
-                                        System.out.printf("   %-12s → %8.3f µs (promedio de %d ejecuciones)%n",
-                                                nombre, promedioUs, REPETICIONES);
-                                    } 
-                                else 
-                                    {
-                                        System.out.printf("   %-12s → %8.3f ms (promedio de %d ejecuciones)%n",
-                                            nombre, promedioMs, REPETICIONES);
-                                    }
+                                                long deltaNs = fin - inicio;
+                                                totalNs += deltaNs;
+                                            }
 
-                                // Guardar en gestor (se mantiene)
-                                gestor.agregarResultado(new Resultado(nombre, n, promedioMs));
-                            }
-                    }
+                                        // 3. Calculamos promedios (lógica existente)
+                                        double promedioNs = totalNs / (double) REPETICIONES;
+                                        double promedioMs = promedioNs / 1_000_000.0;
 
-                System.out.println("\nAnálisis completado. Resultados en memoria.");
+                                        // 4. Imprimimos en consola (ACTUALIZADO con el caso)
+                                        if (promedioNs < 1_000_000.0) 
+                                            {
+                                                double promedioUs = promedioNs / 1000.0;
+                                                System.out.printf("   %-12s (%-8s) → %8.3f µs (promedio de %d ejecuciones)%n",
+                                                        nombre, nombreCaso, promedioUs, REPETICIONES);
+                                            } 
+                                        else 
+                                            {
+                                                System.out.printf("   %-12s (%-8s) → %8.3f ms (promedio de %d ejecuciones)%n",
+                                                    nombre, nombreCaso, promedioMs, REPETICIONES);
+                                            }
+
+                                        // 5. Guardar en gestor (ACTUALIZADO con el caso)
+                                        gestor.agregarResultado(new Resultado(nombre, n, promedioMs, nombreCaso));
+                                    
+                                    } // Fin del bucle de Casos
+                            } // Fin del bucle de Algoritmos
+                    } // Fin del bucle de Tamaños
+
+                System.out.println("\nAnálisis completado (Mejor, Peor y Promedio). Resultados en memoria.");
 
             }
     }

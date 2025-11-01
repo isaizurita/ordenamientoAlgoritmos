@@ -50,13 +50,14 @@ public class GestorResultados
                 
                 try (FileWriter writer = new FileWriter(nombreArchivo)) 
                     {
-                        writer.write("Tamaño,Algoritmo,PromedioMs\n");
+                        writer.write("Tamaño,Algoritmo,Caso,PromedioMs\n");
 
                         for (Resultado r : resultados)
                             {
-                                writer.write(String.format("%d,%s,%.6f\n", 
+                                writer.write(String.format("%d,%s,%s,%.6f\n", 
                                     r.getTamano(), 
                                     r.getAlgoritmo(), 
+                                    r.getCaso(),
                                     r.getTiempoMs()));
                             }
                         

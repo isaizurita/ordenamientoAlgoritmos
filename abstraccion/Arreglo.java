@@ -1,5 +1,6 @@
 package abstraccion;
 
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -38,5 +39,34 @@ public class Arreglo
         public int[] getDatos() 
             {
                 return datos;
+            }
+
+        /*
+         * Devuelve una copia del arreglo ordenado ascendentemente, que es el mejro caso para el análisis.
+         * @return Un nuevo arreglo ordenado.
+         */
+        public int[] getDatosOrdenados()
+            {
+                int [] copiaOrdenada = Arrays.copyOf(this.datos, this.datos.length);
+                Arrays.sort(copiaOrdenada);
+                return copiaOrdenada;
+            }
+        
+        /*
+         * Devuelve una copia del arreglo pero ordenado descendientemente, que es el peor caso para el análisis.
+         * @return Un nuevo arreglo ordenado "al revés"
+         */
+        public int[] getDatosOrdenadosInversos()
+            {
+                int[] copiaInversa = this.getDatosOrdenados();
+
+                for (int i = 0; i < copiaInversa.length / 2; i++) 
+                    {
+                        int temp = copiaInversa[i];
+                        copiaInversa[i] = copiaInversa[copiaInversa.length - 1 - i];
+                        copiaInversa[copiaInversa.length - 1 - i] = temp;
+                    }
+                
+                return copiaInversa;
             }
     }

@@ -4,11 +4,10 @@ import abstraccion.Resultado;
 import control.ControladorEjecucion;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task; 
-import javafx.geometry.Insets; 
-import javafx.geometry.Pos; 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -20,12 +19,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority; 
-import javafx.scene.layout.Region; 
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,21 +31,18 @@ import java.util.stream.Collectors;
 
 /**
  * Clase principal de la aplicación JavaFX (Capa de Presentación).
- * --- RESPONSABILIDAD: Mostrar la UI, recibir entradas y delegar TODA la lógica
+ * --- RESPONSABILIDAD: Mostrar la UI, recibir entradas y delegar la lógica
  * al ControladorEjecucion. ---
  */
 public class InterfazPrincipal extends Application 
     {
-        // El único punto de contacto con la lógica de control
         private final ControladorEjecucion controlador = new ControladorEjecucion();
 
         private Stage escenarioPrincipal;
         
-        // Almacenamos las escenas para navegar entre ellas
         private Scene escenaInicio;
         private Scene escenaResultados;
         
-        // Almacenará la lista compelta de resultados
         private List<Resultado> todosLosResultados; 
 
         @Override
@@ -56,7 +51,6 @@ public class InterfazPrincipal extends Application
                 this.escenarioPrincipal = primaryStage;
                 escenarioPrincipal.setTitle("Analizador de Eficiencia");
                 
-                // Creamos e inicializamos la primera escena
                 this.escenaInicio = crearEscenaInicio();
                 escenarioPrincipal.setScene(this.escenaInicio);
                 escenarioPrincipal.show();
@@ -66,32 +60,32 @@ public class InterfazPrincipal extends Application
         private Scene crearEscenaInicio() 
             {
                 BorderPane panelRaiz = new BorderPane();
-                panelRaiz.getStyleClass().add("panel-raiz");
+                panelRaiz.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 10px;");
                 panelRaiz.setTop(crearEncabezado());
 
-                VBox contenidoPrincipal = new VBox();
-                contenidoPrincipal.getStyleClass().add("contenido-principal");
+                VBox contenidoPrincipal = new VBox(20);
+                contenidoPrincipal.setAlignment(Pos.CENTER);
+                contenidoPrincipal.setPadding(new Insets(20, 50, 80, 50));
 
                 Label tituloBienvenida = new Label("¡Bienvenido al Analizador de Eficiencia de Algoritmos!");
-                tituloBienvenida.getStyleClass().add("titulo-bienvenida");
+                tituloBienvenida.getStyleClass().add("welcome-title");
 
-                HBox seccionEntrada = new HBox();
-                seccionEntrada.getStyleClass().add("seccion-entrada");
-                
+                HBox seccionEntrada = new HBox(15);
+                seccionEntrada.setAlignment(Pos.CENTER);
                 Label etiquetaEntrada = new Label("Por favor ingresa el tamaño del arreglo a analizar:");
-                etiquetaEntrada.getStyleClass().add("etiqueta-entrada");
+                etiquetaEntrada.getStyleClass().add("input-label");
                 
                 TextField campoTamano = new TextField();
                 campoTamano.setPromptText("Ingrese aquí");
-                campoTamano.getStyleClass().add("campo-texto");
+                campoTamano.getStyleClass().add("size-field");
                 campoTamano.setPrefWidth(150);
                 seccionEntrada.getChildren().addAll(etiquetaEntrada, campoTamano);
 
                 Label etiquetaNotificacion = new Label();
-                etiquetaNotificacion.getStyleClass().add("etiqueta-notificacion");
+                etiquetaNotificacion.getStyleClass().add("notification-label");
                 
                 Button botonInicio = new Button("Iniciar Ejecución");
-                botonInicio.getStyleClass().addAll("button", "boton-primario");
+                botonInicio.getStyleClass().add("action-button-blue");
 
                 botonInicio.setOnAction(e -> 
                     {
@@ -129,14 +123,12 @@ public class InterfazPrincipal extends Application
                 catch (NumberFormatException ex) 
                     {
                         etiquetaNotificacion.setText("Error: Ingresa un número entero y positivo.");
-                        etiquetaNotificacion.getStyleClass().remove("notificacion-exito");
-                        etiquetaNotificacion.getStyleClass().add("notificacion-error");
+                        etiquetaNotificacion.setStyle("-fx-text-fill: red;");
                         return;
                     }
 
                 etiquetaNotificacion.setText("Analizando... esto puede tardar un poco, gracias por tu paciencia (:");
-                etiquetaNotificacion.getStyleClass().remove("notificacion-error");
-                etiquetaNotificacion.getStyleClass().add("notificacion-exito");
+                etiquetaNotificacion.setStyle("-fx-text-fill: #007AFF;");
                 botonInicio.setDisable(true);
                 campoTamano.setDisable(true);
 
@@ -153,9 +145,10 @@ public class InterfazPrincipal extends Application
                 tareaAnalisis.setOnSucceeded(workerStateEvent -> 
                     {
                         this.todosLosResultados = tareaAnalisis.getValue();
+                        
                         this.escenaResultados = crearEscenaResultados(); 
                         escenarioPrincipal.setScene(this.escenaResultados);
-                        
+
                         botonInicio.setDisable(false);
                         campoTamano.setDisable(false);
                         campoTamano.clear();
@@ -165,8 +158,7 @@ public class InterfazPrincipal extends Application
                 tareaAnalisis.setOnFailed(workerStateEvent -> 
                     {
                         etiquetaNotificacion.setText("Error: Ocurrió un fallo durante el análisis.");
-                        etiquetaNotificacion.getStyleClass().remove("notificacion-exito");
-                        etiquetaNotificacion.getStyleClass().add("notificacion-error");
+                        etiquetaNotificacion.setStyle("-fx-text-fill: red;");
                         botonInicio.setDisable(false);
                         campoTamano.setDisable(false);
                         tareaAnalisis.getException().printStackTrace();
@@ -175,66 +167,65 @@ public class InterfazPrincipal extends Application
                 new Thread(tareaAnalisis).start();
             }
 
-
-        // Pantalla de resultados
         private Scene crearEscenaResultados() 
             {
                 BorderPane panelRaiz = new BorderPane();
-                panelRaiz.getStyleClass().add("panel-raiz");
+                panelRaiz.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 10px;");
                 panelRaiz.setTop(crearEncabezado());
 
-                VBox contenidoPrincipal = new VBox();
-                contenidoPrincipal.getStyleClass().add("contenido-principal");
+                VBox contenidoPrincipal = new VBox(20);
+                contenidoPrincipal.setAlignment(Pos.TOP_CENTER);
+                contenidoPrincipal.setPadding(new Insets(25, 40, 40, 40));
 
                 Label tituloResultados = new Label("Resultados de la ejecución");
-                tituloResultados.getStyleClass().add("titulo-seccion");
+                tituloResultados.getStyleClass().add("results-title");
 
-                HBox panelFiltros = new HBox();
-                panelFiltros.getStyleClass().add("panel-filtros");
+                HBox panelFiltros = new HBox(10);
+                panelFiltros.setAlignment(Pos.CENTER);
                 
                 Label etiquetaFiltroAlgo = new Label("Ver comportamiento de:");
-                etiquetaFiltroAlgo.getStyleClass().add("etiqueta-entrada");
+                etiquetaFiltroAlgo.getStyleClass().add("input-label");
                 
                 ComboBox<String> comboAlgoritmo = new ComboBox<>();
                 comboAlgoritmo.setItems(FXCollections.observableArrayList(
                     "BubbleSort", "InsertionSort", "SelectionSort", "MergeSort", "QuickSort"
                 ));
                 comboAlgoritmo.setValue("BubbleSort");
-                comboAlgoritmo.getStyleClass().add("combo-box");
+                comboAlgoritmo.getStyleClass().add("filter-combo");
 
                 Label etiquetaFiltroCaso = new Label("Caso:");
-                etiquetaFiltroCaso.getStyleClass().add("etiqueta-entrada");
+                etiquetaFiltroCaso.getStyleClass().add("input-label");
                 ComboBox<String> comboCaso = new ComboBox<>();
+                comboCaso.setItems(FXCollections.observableArrayList("Promedio", "Mejor", "Peor"));
+                comboCaso.setValue("Promedio"); 
+                comboCaso.getStyleClass().add("filter-combo");
                 
-                comboCaso.setItems(FXCollections.observableArrayList("promedio", "mejor", "peor"));
-                comboCaso.setValue("promedio"); 
-                comboCaso.getStyleClass().add("combo-box");
-                
+                Button botonGraficaCrecimiento = new Button("Ver Gráfica de Crecimiento");
+                botonGraficaCrecimiento.getStyleClass().add("action-button-green");
+
                 panelFiltros.getChildren().addAll(etiquetaFiltroAlgo, comboAlgoritmo, etiquetaFiltroCaso, comboCaso);
 
-                Button botonGraficaCrecimiento = new Button("Ver Gráfica de Crecimiento");
-                botonGraficaCrecimiento.getStyleClass().addAll("button", "boton-secundario");
-
                 Label etiquetaNotificacion = new Label();
-                etiquetaNotificacion.getStyleClass().add("etiqueta-notificacion");
-                etiquetaNotificacion.setMinHeight(20); 
+                etiquetaNotificacion.getStyleClass().add("notification-label");
+                etiquetaNotificacion.setMinHeight(20); // Damos espacio
 
                 GridPane tablaResultados = crearTablaResultados(comboCaso.getValue()); 
                 
                 contenidoPrincipal.getChildren().addAll(tituloResultados, panelFiltros, botonGraficaCrecimiento, etiquetaNotificacion, tablaResultados);
                 panelRaiz.setCenter(contenidoPrincipal);
 
-                HBox barraBotones = new HBox();
-                barraBotones.getStyleClass().add("barra-botones");
+                HBox barraBotones = new HBox(20);
+                barraBotones.setAlignment(Pos.CENTER);
+                barraBotones.setPadding(new Insets(0, 0, 30, 0));
 
                 Button botonExportar = new Button("Exportar archivo de datos");
-                botonExportar.getStyleClass().addAll("button", "boton-secundario");
-
+                botonExportar.getStyleClass().add("action-button-blue");
+                
                 Button botonGraficaComparativa = new Button("Ver Gráfica Comparativa");
-                botonGraficaComparativa.getStyleClass().addAll("button", "boton-primario");
+                botonGraficaComparativa.getStyleClass().add("action-button-blue");
 
                 Button botonSalir = new Button("Salir");
-                botonSalir.getStyleClass().addAll("button", "boton-peligro"); 
+                botonSalir.getStyleClass().add("action-button-red");
 
                 comboCaso.setOnAction(e -> 
                 {
@@ -247,15 +238,13 @@ public class InterfazPrincipal extends Application
                     String msg = controlador.exportarReportesCSV();
                     etiquetaNotificacion.setText(msg);
                     if (msg.startsWith("Error")) 
-                    {
-                        etiquetaNotificacion.getStyleClass().remove("notificacion-exito");
-                        etiquetaNotificacion.getStyleClass().add("notificacion-error");
-                    } 
+                        {
+                            etiquetaNotificacion.setStyle("-fx-text-fill: red;");
+                        } 
                     else 
-                    {
-                        etiquetaNotificacion.getStyleClass().remove("notificacion-error");
-                        etiquetaNotificacion.getStyleClass().add("notificacion-exito");
-                    }
+                        {
+                            etiquetaNotificacion.setStyle("-fx-text-fill: green;");
+                        }
                 });
 
                 botonGraficaComparativa.setOnAction(e -> 
@@ -274,8 +263,8 @@ public class InterfazPrincipal extends Application
                 botonSalir.setOnAction(e -> 
                 {
                     controlador.limpiarResultados();
-                    this.todosLosResultados = null; 
-                    escenarioPrincipal.setScene(this.escenaInicio);    
+                    this.todosLosResultados = null;
+                    escenarioPrincipal.setScene(this.escenaInicio);  
                 });
 
                 barraBotones.getChildren().addAll(botonExportar, botonGraficaComparativa, botonSalir);
@@ -286,34 +275,34 @@ public class InterfazPrincipal extends Application
                 return escena;
             }
 
-        private Scene crearEscenaGraficaComparativa(String caso) 
+        // Pantalla de gráficas comparativas
+        private Scene crearEscenaGraficaComparativa(String caso)
             {
                 BorderPane panelRaiz = new BorderPane();
-                panelRaiz.getStyleClass().add("panel-raiz");
+                panelRaiz.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 10px;");
                 panelRaiz.setTop(crearEncabezado());
 
-                VBox contenidoPrincipal = new VBox();
-                contenidoPrincipal.getStyleClass().add("contenido-principal");
+                VBox contenidoPrincipal = new VBox(25);
+                contenidoPrincipal.setAlignment(Pos.TOP_CENTER);
+                contenidoPrincipal.setPadding(new Insets(25, 40, 40, 40));
 
                 Label etiquetaTituloGrafica = new Label("Comparativa de Crecimiento (" + caso + ")");
-                etiquetaTituloGrafica.getStyleClass().add("titulo-seccion");
+                etiquetaTituloGrafica.getStyleClass().add("results-title");
 
                 NumberAxis ejeX = new NumberAxis();
                 ejeX.setLabel("Tamaño del Arreglo (n)");
-                ejeX.getStyleClass().add("eje-etiqueta");
+                ejeX.getStyleClass().add("axis-label");
 
                 NumberAxis ejeY = new NumberAxis();
                 ejeY.setLabel("Tiempo (ms) - Real");
-                ejeY.getStyleClass().add("eje-etiqueta");
+                ejeY.getStyleClass().add("axis-label");
 
                 LineChart<Number, Number> graficaLinea = new LineChart<>(ejeX, ejeY);
-                graficaLinea.setTitle("Rendimiento Real de Algoritmos (" + caso + ")");
-                graficaLinea.getStyleClass().add("titulo-grafica");
+                //graficaLinea.setTitle("Rendimiento Real de Algoritmos (" + caso + ")");
+                graficaLinea.getStyleClass().add("chart-title");
 
                 Map<String, XYChart.Series<Number, Number>> mapaSeries = new HashMap<>();
-                if (this.todosLosResultados != null)
-                {
-                    for (Resultado r : this.todosLosResultados)
+                for (Resultado r : this.todosLosResultados)
                     {
                         if (r.getCaso().equals(caso)) 
                         {
@@ -322,20 +311,21 @@ public class InterfazPrincipal extends Application
                                 series.setName(nombre);
                                 return series;
                             });
+                            
                             mapaSeries.get(r.getAlgoritmo()).getData().add(new XYChart.Data<>(r.getTamano(), r.getTiempoMs()));
                         }
                     }
-                }
+                
                 graficaLinea.getData().addAll(mapaSeries.values());
 
                 contenidoPrincipal.getChildren().addAll(etiquetaTituloGrafica, graficaLinea);
                 panelRaiz.setCenter(contenidoPrincipal);
 
-                HBox barraBotones = new HBox();
-                barraBotones.getStyleClass().add("barra-botones");
-                
+                HBox barraBotones = new HBox(20);
+                barraBotones.setAlignment(Pos.CENTER);
+                barraBotones.setPadding(new Insets(0, 0, 30, 0));
                 Button botonVolver = new Button("Ver tabla de datos");
-                botonVolver.getStyleClass().addAll("button", "boton-primario");
+                botonVolver.getStyleClass().add("action-button-blue");
                 botonVolver.setOnAction(e -> escenarioPrincipal.setScene(this.escenaResultados));
                 barraBotones.getChildren().add(botonVolver);
                 
@@ -346,54 +336,53 @@ public class InterfazPrincipal extends Application
                 return escena;
             }
         
-        private Scene crearEscenaGraficaIndividual(String nombreAlgoritmo, String caso) 
+        // Pantalla de gráfica individual
+        private Scene crearEscenaGraficaIndividual(String nombreAlgoritmo, String caso)
             {
                 BorderPane panelRaiz = new BorderPane();
-                panelRaiz.getStyleClass().add("panel-raiz");
+                panelRaiz.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 10px;");
                 panelRaiz.setTop(crearEncabezado());
 
-                VBox contenidoPrincipal = new VBox();
-                contenidoPrincipal.getStyleClass().add("contenido-principal");
+                VBox contenidoPrincipal = new VBox(25);
+                contenidoPrincipal.setAlignment(Pos.TOP_CENTER);
+                contenidoPrincipal.setPadding(new Insets(25, 40, 40, 40));
 
                 Label etiquetaTituloGrafica = new Label("Comportamiento de: " + nombreAlgoritmo + " (" + caso + ")");
-                etiquetaTituloGrafica.getStyleClass().add("titulo-seccion");
+                etiquetaTituloGrafica.getStyleClass().add("results-title");
 
                 NumberAxis ejeX = new NumberAxis();
                 ejeX.setLabel("Tamaño del Arreglo (n)");
-                ejeX.getStyleClass().add("eje-etiqueta");
+                ejeX.getStyleClass().add("axis-label");
 
                 NumberAxis ejeY = new NumberAxis();
                 ejeY.setLabel("Tiempo (ms) - Real");
-                ejeY.getStyleClass().add("eje-etiqueta");
+                ejeY.getStyleClass().add("axis-label");
 
                 LineChart<Number, Number> graficaLinea = new LineChart<>(ejeX, ejeY);
-                graficaLinea.setTitle("Rendimiento Real: " + nombreAlgoritmo + " (" + caso + ")");
-                graficaLinea.getStyleClass().add("titulo-grafica");
+                //graficaLinea.setTitle("Rendimiento Real: " + nombreAlgoritmo + " (" + caso + ")");
+                graficaLinea.getStyleClass().add("chart-title");
                 graficaLinea.setLegendVisible(false);
 
                 XYChart.Series<Number, Number> series = new XYChart.Series<>();
                 series.setName(nombreAlgoritmo);
                 
-                if (this.todosLosResultados != null)
-                {
-                    for (Resultado r : this.todosLosResultados) 
+                for (Resultado r : this.todosLosResultados)
                     {
                         if (r.getAlgoritmo().equals(nombreAlgoritmo) && r.getCaso().equals(caso)) 
-                        {
-                            series.getData().add(new XYChart.Data<>(r.getTamano(), r.getTiempoMs()));
-                        }
+                            {
+                                series.getData().add(new XYChart.Data<>(r.getTamano(), r.getTiempoMs()));
+                            }
                     }
-                }
                 graficaLinea.getData().add(series);
                 
                 contenidoPrincipal.getChildren().addAll(etiquetaTituloGrafica, graficaLinea);
                 panelRaiz.setCenter(contenidoPrincipal);
 
-                HBox barraBotones = new HBox();
-                barraBotones.getStyleClass().add("barra-botones");
-                
+                HBox barraBotones = new HBox(20);
+                barraBotones.setAlignment(Pos.CENTER);
+                barraBotones.setPadding(new Insets(0, 0, 30, 0));
                 Button botonVolver = new Button("Ver tabla de datos");
-                botonVolver.getStyleClass().addAll("button", "boton-primario");
+                botonVolver.getStyleClass().add("action-button-blue");
                 botonVolver.setOnAction(e -> escenarioPrincipal.setScene(this.escenaResultados));
                 barraBotones.getChildren().add(botonVolver);
                 
@@ -410,7 +399,8 @@ public class InterfazPrincipal extends Application
         private VBox crearEncabezado() 
             {
                 VBox encabezado = new VBox();
-                encabezado.getStyleClass().add("encabezado");
+                encabezado.setAlignment(Pos.CENTER);
+                encabezado.setPadding(new Insets(10, 20, 10, 20));
                 
                 Label tituloApp = new Label("Analizador de Eficiencia de Algoritmos");
                 tituloApp.getStyleClass().add("app-title");
@@ -418,6 +408,14 @@ public class InterfazPrincipal extends Application
                 subtituloApp.getStyleClass().add("app-subtitle");
                 
                 encabezado.getChildren().addAll(tituloApp, subtituloApp);
+
+                Region espaciadorIzq = new Region();
+                Region espaciadorDer = new Region();
+                HBox.setHgrow(espaciadorIzq, Priority.ALWAYS);
+                HBox.setHgrow(espaciadorDer, Priority.ALWAYS);
+                
+                HBox barraTitulo = new HBox(espaciadorIzq, encabezado, espaciadorDer);
+                barraTitulo.setAlignment(Pos.CENTER);
                 
                 return encabezado;
             }
@@ -425,10 +423,13 @@ public class InterfazPrincipal extends Application
         /**
          * Método de ayuda para crear la tabla de resultados (Pantalla de Resultados)
          */
-        private GridPane crearTablaResultados(String caso) 
+        private GridPane crearTablaResultados(String caso)
             {
                 GridPane tablaResultados = new GridPane();
-                tablaResultados.getStyleClass().add("tabla-resultados");
+                tablaResultados.setAlignment(Pos.CENTER);
+                tablaResultados.setHgap(50);
+                tablaResultados.setVgap(12);
+                tablaResultados.setPadding(new Insets(20, 0, 0, 0));
 
                 Label etiquetaCabeceraAlg = new Label("Algoritmo");
                 etiquetaCabeceraAlg.getStyleClass().add("grid-header");
@@ -442,13 +443,14 @@ public class InterfazPrincipal extends Application
                 etiquetaCabeceraTiempo.getStyleClass().add("grid-header");
                 tablaResultados.add(etiquetaCabeceraTiempo, 2, 0);
 
-                if (todosLosResultados != null && !todosLosResultados.isEmpty()) 
+                if (todosLosResultados == null || todosLosResultados.isEmpty()){}
+                else
                     {
                         int nMaximo = 0;
                         for (Resultado r : todosLosResultados) 
-                        {
-                            nMaximo = Math.max(nMaximo, r.getTamano());
-                        }
+                            {
+                                nMaximo = Math.max(nMaximo, r.getTamano());
+                            }
 
                         final int finalNMaximo = nMaximo; 
                         List<Resultado> resultadosFinales = this.todosLosResultados.stream()
@@ -457,19 +459,15 @@ public class InterfazPrincipal extends Application
                         
                         int indiceFila = 1;
                         for (Resultado r : resultadosFinales)
-                        {
-                            Label etiquetaAlgoritmo = new Label(r.getAlgoritmo());
-                            etiquetaAlgoritmo.getStyleClass().add("celda-tabla");
-                            tablaResultados.add(etiquetaAlgoritmo, 0, indiceFila);
-                            
-                            Label etiquetaTamano = new Label(String.format("%,d", r.getTamano()));
-                            etiquetaTamano.getStyleClass().add("celda-tabla");
-                            tablaResultados.add(etiquetaTamano, 1, indiceFila);
-                            
-                            tablaResultados.add(crearCeldaTiempo(r.getTiempoMs()), 2, indiceFila);
-                            
-                            indiceFila++;
-                        }
+                            {
+                                tablaResultados.add(new Label(r.getAlgoritmo()), 0, indiceFila);
+                                
+                                tablaResultados.add(new Label(String.format("%,d", r.getTamano())), 1, indiceFila);
+                                
+                                tablaResultados.add(crearCeldaTiempo(r.getTiempoMs()), 2, indiceFila);
+                                
+                                indiceFila++;
+                            }
                     }
                 
                 return tablaResultados;
@@ -482,7 +480,7 @@ public class InterfazPrincipal extends Application
         private VBox crearCeldaTiempo(double timeMs) 
             {
                 VBox celda = new VBox(0);
-                celda.getStyleClass().add("celda-tiempo-contenedor");
+                celda.setAlignment(Pos.CENTER_LEFT);
                 
                 String tiempoPrincipal = String.format("%,.0f ms", timeMs);
                 Label etiquetaPrincipal = new Label(tiempoPrincipal);
@@ -507,6 +505,7 @@ public class InterfazPrincipal extends Application
                 launch(args);
             }
     }
+
 /*
  * Para ejecutar desde carpeta raíz
  * $ export PATH_TO_FX="/Users/isaizurita/Documents/javafx-sdk-21.0.9/lib"
@@ -518,9 +517,13 @@ public class InterfazPrincipal extends Application
  * 
  * $ java --module-path $PATH_TO_FX --add-modules javafx.controls \
  * $ -cp out \
- * $ presentacion.MainApp
+ * $ presentacion.InterfazPrincipal
+ * 
+ * Para hgenerar la documentación
+ * $ javadoc --module-path $PATH_TO_FX --add-modules javafx.controls -d doc/api abstraccion/*.java control/*.java presentacion/*.java
  */
 
- // javac --module-path $PATH_TO_FX --add-modules javafx.controls -d out abstraccion/*.java control/*.java presentacion/*.java
- // cp presentacion/styles.css out/presentacion/
- // java --module-path $PATH_TO_FX --add-modules javafx.controls -cp out presentacion.MainApp
+ // *Arreglar Arreglo.java
+ // *Arreglar Resultado.java
+ // *Analizador eficiencia.java
+ // *Añadir columna GestorResultados.java y Grafica.java

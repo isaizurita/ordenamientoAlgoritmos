@@ -3,7 +3,7 @@ package abstraccion;
 import java.util.Random;
 
 /**
- * Implementación de Quick Sort (in-place).
+ * Implementación de Quick Sort
  */
 public class QuickSort implements EstrategiaOrdenamiento 
     {

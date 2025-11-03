@@ -29,7 +29,7 @@ public class Grafica
                         return;
                     }
 
-                // Agrupar por algoritmo Y CASO
+                // Agrupar por algoritmo y caso
                 Map<String, StringBuilder> mapas = new HashMap<>();
                 Map<String, Integer> cuenta = new HashMap<>();
                 Map<String, Double> suma = new HashMap<>();
@@ -50,10 +50,9 @@ public class Grafica
                         suma.put(claveUnica, suma.getOrDefault(claveUnica, 0.0) + r.getTiempoMs());
                     }
 
-                // Escribimos archivos CSV por algoritmo Y CASO
+                // Escribimos archivos CSV por algoritmo y caos
                 for (Map.Entry<String, StringBuilder> e : mapas.entrySet()) 
                     {
-                        // La clave (ej. "BubbleSort_PROMEDIO") ya es un nombre de archivo seguro
                         String nombre = e.getKey().replaceAll("\\s+", "_");
                         String archivo = "grafica_" + nombre + ".csv";
                         try (FileWriter fw = new FileWriter(archivo)) 
@@ -67,7 +66,7 @@ public class Grafica
                             }
                     }
 
-                // Mostrar resumen por algoritmo Y CASO
+                // Mostrar resumen por algoritmo 
                 System.out.println("\n--- Resumen por algoritmo y caso (promedio) ---");
                 for (String claveUnica : mapas.keySet()) 
                     {
@@ -77,7 +76,7 @@ public class Grafica
                         System.out.printf("%-24s -> muestras: %2d, promedio: %8.4f ms%n", claveUnica, c, avg);
                     }
 
-                // También generar un CSV consolidado (CON CASO)
+                // También generamos un CSV consolidado
                 try (FileWriter fw = new FileWriter("grafica_consolidada.csv")) 
                     {
                         // Añadimos la columna "caso"
@@ -86,7 +85,7 @@ public class Grafica
                             {
                                 fw.write(r.getTamano() + "," + 
                                          r.getAlgoritmo() + "," +
-                                         r.getCaso() + "," + // <-- CAMPO AÑADIDO
+                                         r.getCaso() + "," +
                                          String.format("%.6f", r.getTiempoMs()) + "\n");
                             }
                         System.out.println("Archivo consolidado para graficar: grafica_consolidada.csv");

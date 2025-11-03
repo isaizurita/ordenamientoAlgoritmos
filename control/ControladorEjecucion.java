@@ -15,7 +15,7 @@ public class ControladorEjecucion
          */
         public void iniciarComparacion(int n) 
             {
-                this.limpiarResultados();
+                this.limpiarResultados(); // Limpiamos todos loso datos desde el inicio por si el usuario elige otro análisis dentro de la ejecución
 
                 System.out.println("Iniciando comparación para tamaño máximo: " + n);
 

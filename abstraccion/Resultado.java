@@ -39,6 +39,6 @@ public class Resultado
         @Override
         public String toString() 
             {
-                return String.format("Algoritmo: %s | Tamaño: %d | Tiempo: %.6f ms", algoritmo, tamano, tiempoMs);
+                return String.format("Algoritmo: %s | Tamaño: %d | Tiempo: %.6f ms | Caso: %s", algoritmo, tamano, tiempoMs, caso);
             }
     }

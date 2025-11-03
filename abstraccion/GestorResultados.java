@@ -7,7 +7,6 @@ import java.io.IOException;
 
 /**
  * Gestiona todos los resultados obtenidos (Patrón Singleton).
- * --- RESPONSABILIDAD: Almacenar resultados y exportar el CSV principal ---
  */
 public class GestorResultados 
     {

@@ -75,13 +75,12 @@ public class AnalizadorEficiencia
 
         /**
          * Ejecuta el análisis para los tamaños definidos.
-         * AHORA EJECUTA LOS 3 CASOS (PROMEDIO, MEJOR, PEOR).
          */
         public void ejecutarAnalisis() 
             {
                 GestorResultados gestor = GestorResultados.getInstancia();
 
-                // Warm-up (Se mantiene igual, usa el caso promedio)
+                // Warm-up para el sistema
                 int warmUpSize = Math.max(1000, (tamanios.length > 0 ? tamanios[0] : 1000));
                 Arreglo warm = new Arreglo(warmUpSize);
 
@@ -107,9 +106,9 @@ public class AnalizadorEficiencia
 
                                 for (TipoCaso caso : TipoCaso.values())
                                     {
-                                        // 1. Obtenemos el arreglo correcto para este caso
+                                        // 1. Obtenemos el arreglo correcto para cdcada caso
                                         int[] datosBaseCaso;
-                                        String nombreCaso = caso.toString(); // "PROMEDIO", "MEJOR", "PEOR"
+                                        String nombreCaso = caso.toString();
 
                                         switch (caso)
                                             {
@@ -125,7 +124,7 @@ public class AnalizadorEficiencia
                                                     break;
                                             }
 
-                                        // 2. Ejecutamos las repeticiones (lógica existente)
+                                        // 2. Ejecutamos las repeticiones
                                         long totalNs = 0L;
                                         for (int r = 0; r < REPETICIONES; r++) 
                                             {
@@ -140,11 +139,11 @@ public class AnalizadorEficiencia
                                                 totalNs += deltaNs;
                                             }
 
-                                        // 3. Calculamos promedios (lógica existente)
+                                        // 3. Calculamos promedios
                                         double promedioNs = totalNs / (double) REPETICIONES;
                                         double promedioMs = promedioNs / 1_000_000.0;
 
-                                        // 4. Imprimimos en consola (ACTUALIZADO con el caso)
+                                        // 4. Imprimimos en consola
                                         if (promedioNs < 1_000_000.0) 
                                             {
                                                 double promedioUs = promedioNs / 1000.0;
@@ -157,12 +156,12 @@ public class AnalizadorEficiencia
                                                     nombre, nombreCaso, promedioMs, REPETICIONES);
                                             }
 
-                                        // 5. Guardar en gestor (ACTUALIZADO con el caso)
+                                        // 5. Guardar en gestor
                                         gestor.agregarResultado(new Resultado(nombre, n, promedioMs, nombreCaso));
                                     
-                                    } // Fin del bucle de Casos
-                            } // Fin del bucle de Algoritmos
-                    } // Fin del bucle de Tamaños
+                                    } // Fin delciclo de casos
+                            } // Fin del bucle de algoritmoss
+                    } // Fin del bucle de los tamaños
 
                 System.out.println("\nAnálisis completado (Mejor, Peor y Promedio). Resultados en memoria.");
 
